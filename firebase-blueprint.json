@@ -1,0 +1,85 @@
+{
+  "entities": {
+    "listing": {
+      "title": "Listing",
+      "description": "A real estate listing for sale or rent.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the listing." },
+        "title": { "type": "string", "description": "Title of the listing." },
+        "description": { "type": "string", "description": "Detailed description of the property." },
+        "type": { "type": "string", "enum": ["sale", "rent"], "description": "Type of listing: sale or rent." },
+        "propertyType": { "type": "string", "enum": ["apartment", "house", "studio", "office"], "description": "Type of property." },
+        "price": { "type": "number", "description": "Price of the property." },
+        "location": { "type": "string", "description": "Location/Address of the property." },
+        "bedrooms": { "type": "number", "description": "Number of bedrooms." },
+        "bathrooms": { "type": "number", "description": "Number of bathrooms." },
+        "area": { "type": "number", "description": "Area in square meters." },
+        "images": { "type": "array", "items": { "type": "string" }, "description": "List of image URLs." },
+        "videoUrl": { "type": "string", "description": "Optional video URL." },
+        "virtualTourUrl": { "type": "string", "description": "Optional virtual tour URL." },
+        "amenities": { "type": "array", "items": { "type": "string" }, "description": "List of amenities (e.g., WiFi, Parking)." },
+        "whatsappNumber": { "type": "string", "description": "WhatsApp number for contact." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp." },
+        "status": { "type": "string", "enum": ["available", "sold", "rented"], "description": "Current status of the listing." }
+      },
+      "required": ["title", "type", "propertyType", "price", "location", "area", "whatsappNumber"]
+    },
+    "user": {
+      "title": "User",
+      "description": "User profile with roles.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "role": { "type": "string", "enum": ["platform_admin", "agency_admin"], "description": "User's role." },
+        "agencyId": { "type": "string", "description": "ID of the agency this user belongs to (if agency_admin)." }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "agency": {
+      "title": "Agency",
+      "description": "A real estate agency on the platform.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the agency." },
+        "name": { "type": "string", "description": "Name of the agency." },
+        "isActive": { "type": "boolean", "description": "Whether the agency's site is active." },
+        "ownerEmail": { "type": "string", "format": "email", "description": "Email of the agency owner." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp." },
+        "subdomain": { "type": "string", "description": "Optional subdomain or unique slug for the agency site." }
+      },
+      "required": ["name", "isActive", "ownerEmail"]
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Global application settings.",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "The name of the application." },
+        "appLogo": { "type": "string", "description": "URL of the application logo." },
+        "heroTitle": { "type": "string", "description": "Title displayed on the hero section." },
+        "heroSubtitle": { "type": "string", "description": "Subtitle displayed on the hero section." },
+        "contactEmail": { "type": "string", "format": "email", "description": "General contact email." },
+        "contactPhone": { "type": "string", "description": "General contact phone number." },
+        "address": { "type": "string", "description": "Business address." }
+      },
+      "required": ["appName"]
+    }
+  },
+  "firestore": {
+    "/listings/{listingId}": {
+      "schema": "listing",
+      "description": "Collection of real estate listings."
+    },
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "Admin user profiles."
+    },
+    "/settings/{settingId}": {
+      "schema": "settings",
+      "description": "Global application settings (usually a single document 'global')."
+    }
+  }
+}

@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "hussamessmahi2@gmail.com" || 
+         request.auth.token.email == "admin@manda.com");
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        isSuperAdmin() || (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true
+        )
+      );
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidListing(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.type in ['sale', 'rent'] &&
+             data.propertyType in ['apartment', 'house', 'studio', 'office'] &&
+             data.price is number && data.price >= 0 &&
+             data.location is string && data.location.size() > 0 && data.location.size() < 500 &&
+             data.area is number && data.area > 0 &&
+             data.whatsappNumber is string && data.whatsappNumber.size() > 0 &&
+             data.status in ['available', 'sold', 'rented'];
+    }
+
+    function isValidUser(data) {
+      return data.uid is string && 
+             data.email is string && 
+             data.role == 'admin' &&
+             data.isActive is bool;
+    }
+
+    function isValidSettings(data) {
+      return data.appName is string && data.appName.size() > 0 &&
+             data.primaryColor is string && data.primaryColor.matches("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$") &&
+             data.heroImage is string &&
+             data.currency is string;
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidSettings(request.resource.data);
+    }
+
+    match /agencies/{agencyId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidListing(request.resource.data);
+      allow delete: if request.auth.token.email == "hussamessmahi2@gmail.com" || request.auth.token.email == "admin@manda.com" || isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isSuperAdmin() || (isOwner(userId) && isValidUser(request.resource.data));
+      allow update: if isSuperAdmin() || (isOwner(userId) && isValidUser(request.resource.data));
+      allow delete: if isSuperAdmin();
+    }
+  }
+}

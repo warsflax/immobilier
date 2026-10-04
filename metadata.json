@@ -1,0 +1,8 @@
+{
+  "name": "Chahin Immobilier",
+  "description": "Une plateforme immobilière moderne permettant de rechercher, consulter et explorer des offres de location et de vente avec visites virtuelles intégrées.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
